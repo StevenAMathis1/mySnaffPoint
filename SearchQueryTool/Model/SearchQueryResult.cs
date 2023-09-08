@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -57,6 +57,54 @@ namespace SearchQueryTool.Model
             get
             {
                 return this.FirstOrDefault(x => x.Key.Equals("FileExtension", StringComparison.InvariantCultureIgnoreCase)).Value;
+            }
+        }
+
+        public string DocId
+        {
+            get
+            {
+                return this.FirstOrDefault(x => x.Key.Equals("DocId", StringComparison.InvariantCultureIgnoreCase)).Value;
+            }
+        }
+
+        public string Description
+        {
+            get
+            {
+                return this.FirstOrDefault(x => x.Key.Equals("Description", StringComparison.InvariantCultureIgnoreCase)).Value;
+            }
+        }
+
+        public string ViewsRecent
+        {
+            get
+            {
+                return this.FirstOrDefault(x => x.Key.Equals("ViewsRecent", StringComparison.InvariantCultureIgnoreCase)).Value;
+            }
+        }
+
+        public string SiteName
+        {
+            get
+            {
+                return this.FirstOrDefault(x => x.Key.Equals("SiteName", StringComparison.InvariantCultureIgnoreCase)).Value;
+            }
+        }
+
+        public string SiteId
+        {
+            get
+            {
+                return this.FirstOrDefault(x => x.Key.Equals("SiteId", StringComparison.InvariantCultureIgnoreCase)).Value;
+            }
+        }
+
+        public string SiteDescription
+        {
+            get
+            {
+                return this.FirstOrDefault(x => x.Key.Equals("SiteDescription", StringComparison.InvariantCultureIgnoreCase)).Value;
             }
         }
 
