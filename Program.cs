@@ -1,10 +1,12 @@
-﻿using SearchQueryTool.Helpers;
+using SearchQueryTool.Helpers;
 using SearchQueryTool.Model;
 using System;
 using System.Collections.Specialized;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Web;
 
 namespace SnaffPoint
 {
@@ -16,8 +18,26 @@ namespace SnaffPoint
         private static SearchPresetList _SearchPresets;
         private static string BearerToken = null;
         private static string SPUrl = null;
+        private static string OutPath = "..\\..\\Output";
         private static bool isFQL = false;
         private static string RefinementFilters = null;
+
+        private static string FileName()
+        {
+            string fileName;
+            string currDate = DateTime.Now.ToString("ddMMyyyy");
+            fileName = currDate + "_SnaffOut.csv";
+
+
+            return fileName;
+        }
+
+        public static void WriteHeadersToCsv()
+        {
+            string headers = "Preset Name,Title,Author,DocId,Path,FileExtension,Description,ViewsRecent,LastModifiedTime,SiteName,SiteId,SiteDescription\n";
+            File.WriteAllText(Path.Combine(OutPath, FileName()), headers);
+        }
+
 
         private static void LoadSearchPresetsFromFolder(string presetFolderPath)
         {
@@ -47,6 +67,12 @@ namespace SnaffPoint
                         {
                             string status = String.Format("HTTP {0} {1}", (int)response.StatusCode, response.StatusDescription);
                             Console.WriteLine("Request returned with following status: " + status);
+
+                            using (EventLog eventLog = new EventLog("Application"))
+                            {
+                                eventLog.Source = "SnaffPoint";
+                                eventLog.WriteEntry("Request returned with the following status: " + status, EventLogEntryType.Warning, 3001);
+                            }
                         }
                     }
                 }
@@ -118,7 +144,7 @@ namespace SnaffPoint
             {
                 foreach (var preset in _SearchPresets.Presets)
                 {
-                    Console.WriteLine("\n" + preset.Name + "\n" + new String('=', preset.Name.Length) + "\n");
+                    //Console.WriteLine("\n" + preset.Name + "\n" + new String('=', preset.Name.Length) + "\n");
                     preset.Request.Token = BearerToken;
                     preset.Request.SharePointSiteUrl = SPUrl;
                     preset.Request.RowLimit = MaxRows;
@@ -151,21 +177,24 @@ namespace SnaffPoint
          */
         private static void ConfigureResults(SearchQueryResult results, SearchPreset preset)
         {
-            string docPath = "C:/Users/smathis/Documents/Output"; //path where output doc will go
 
 
-            File.WriteAllText(Path.Combine(docPath, "SnaffOut.csv"), string.Empty); //clear existing file
+            //File.WriteAllText(Path.Combine(docPath, "SnaffOut.csv"), string.Empty); //clear existing file
    
             if (results != null)
             {
                 if (results.PrimaryQueryResult != null)
                 {
-                    foreach (ResultItem item in results.PrimaryQueryResult.RelevantResults)
+                    if (results.PrimaryQueryResult.TotalRows > 0)
                     {
-                        string entry = preset.Name + "," + item.Title + "." + item.Extension + "," + item.Path + "," + item.Author + "," + item.LastModifiedTime + "\n";
-                        //Console.WriteLine(entry);
+                        foreach (ResultItem item in results.PrimaryQueryResult.RelevantResults)
+                        {
+                            string path = HttpUtility.UrlEncode(item.Path); string site = HttpUtility.UrlEncode(item.SiteName);
+                            string entry = preset.Name + "," + item.Title + "." + item.Extension + "," + item.Author + "," + item.DocId + "," + path + "," + item.Extension + "," + item.Description + "," + item.ViewsRecent + "," + item.LastModifiedTime + "," + site + "," + item.SiteId + "," + item.SiteDescription + "\n";
+                            //Console.WriteLine(entry);
 
-                        File.AppendAllText(Path.Combine(docPath, "SnaffOut.csv"), entry);
+                            File.AppendAllText(Path.Combine(OutPath, FileName()), entry);
+                        }
                     }
                 }
                 else
@@ -270,6 +299,7 @@ Single query mode:
 
         static void Main(string[] args)
         {
+
             foreach (var entry in args.Select((value, index) => new { index, value }))
             {
                 switch (entry.value)
@@ -365,6 +395,7 @@ Single query mode:
             }
             else
             {
+                WriteHeadersToCsv();
                 QueryAllPresets();
             }
         }
