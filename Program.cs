@@ -1,4 +1,8 @@
-using SearchQueryTool.Helpers;
+using (EventLog eventLog = new EventLog("Application"))
+{
+    eventLog.Source = "SnaffPoint";
+    eventLog.WriteEntry("Request returned with the following status: " + status, EventLogEntryType.Warning, 3001);
+}using SearchQueryTool.Helpers;
 using SearchQueryTool.Model;
 using System;
 using System.Collections.Specialized;
@@ -35,7 +39,18 @@ namespace SnaffPoint
         public static void WriteHeadersToCsv()
         {
             string headers = "Preset Name,Title,Author,DocId,Path,FileExtension,Description,ViewsRecent,LastModifiedTime,SiteName,SiteId,SiteDescription\n";
-            File.WriteAllText(Path.Combine(OutPath, FileName()), headers);
+            try
+            {
+                File.WriteAllText(Path.Combine(OutPath, FileName()), headers);
+            }
+            catch (Exception ex)
+            {
+                using (EventLog eventLog = new EventLog("Application"))
+                {
+                    eventLog.Source = "SnaffPoint";
+                    eventLog.WriteEntry("File can not be written to. Check OutPath variable. Error: " + ex.Message, EventLogEntryType.Warning, 3001);
+                }
+            }
         }
 
 
@@ -48,6 +63,11 @@ namespace SnaffPoint
             catch (Exception ex)
             {
                 Console.WriteLine("Failed to read search presets. Error: " + ex.Message);
+                using (EventLog eventLog = new EventLog("Application"))
+                {
+                    eventLog.Source = "SnaffPoint";
+                    eventLog.WriteEntry("Failed to read search presets. Error: " + ex.Message, EventLogEntryType.Warning, 3001);
+                }
             }
         }
 
@@ -84,6 +104,11 @@ namespace SnaffPoint
             catch (Exception ex)
             {
                 Console.WriteLine("Request failed with exception: " + ex.Message);
+                using (EventLog eventLog = new EventLog("Application"))
+                {
+                    eventLog.Source = "SnaffPoint";
+                    eventLog.WriteEntry("Request failed with exception: " + ex.Message, EventLogEntryType.Warning, 3001);
+                }
             }
             return searchResults;
         }
@@ -160,6 +185,11 @@ namespace SnaffPoint
             else
             {
                 Console.WriteLine("No presets were found in " + PresetPath);
+                using (EventLog eventLog = new EventLog("Application"))
+                {
+                    eventLog.Source = "SnaffPoint";
+                    eventLog.WriteEntry("No presets found in specified path." , EventLogEntryType.Warning, 3001);
+                }
             }
         }
 
@@ -199,12 +229,20 @@ namespace SnaffPoint
                 }
                 else
                 {
-                    Console.WriteLine("Found no results... maybe the request failed?");
+                    using (EventLog eventLog = new EventLog("Application"))
+                    {
+                        eventLog.Source = "SnaffPoint";
+                        eventLog.WriteEntry("Found no results.", EventLogEntryType.Warning, 3001);
+                    }
                 }
             }
             else
             {
-                Console.WriteLine("Result are null ! What happened there?");
+                using (EventLog eventLog = new EventLog("Application"))
+                {
+                    eventLog.Source = "SnaffPoint";
+                    eventLog.WriteEntry("Results are null.", EventLogEntryType.Warning, 3001);
+                }
             }
         }
 
