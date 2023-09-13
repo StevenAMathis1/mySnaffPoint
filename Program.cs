@@ -200,10 +200,6 @@ namespace SnaffPoint
          * writes name of preset used, title of file, author, full path of file, and last date modified
          * to a csv file
          * 
-         * writes over any data previously written to file
-         * 
-         * TODO: make docPath a configurable variable - possibly command line variable?
-         * also could make name of output doc variable
          */
         private static void ConfigureResults(SearchQueryResult results, SearchPreset preset)
         {
