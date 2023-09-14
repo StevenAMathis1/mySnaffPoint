@@ -22,7 +22,7 @@ namespace SnaffPoint
         private static SearchPresetList _SearchPresets;
         private static string BearerToken = null;
         private static string SPUrl = null;
-        private static string OutPath = "..\\..\\Output";
+        private static string OutPath = ".\\Output";
         private static bool isFQL = false;
         private static string RefinementFilters = null;
 
