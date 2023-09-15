@@ -1,8 +1,4 @@
-using (EventLog eventLog = new EventLog("Application"))
-{
-    eventLog.Source = "SnaffPoint";
-    eventLog.WriteEntry("Request returned with the following status: " + status, EventLogEntryType.Warning, 3001);
-}using SearchQueryTool.Helpers;
+using SearchQueryTool.Helpers;
 using SearchQueryTool.Model;
 using System;
 using System.Collections.Specialized;
@@ -38,7 +34,7 @@ namespace SnaffPoint
 
         public static void WriteHeadersToCsv()
         {
-            string headers = "Preset Name,Title,Author,DocId,Path,FileExtension,Description,ViewsRecent,LastModifiedTime,SiteName,SiteId,SiteDescription\n";
+            string headers = "Preset Name|Title|Author|DocId|Path|FileExtension|Description|ViewsRecent|LastModifiedTime|SiteName|SiteId|SiteDescription\n";
             try
             {
                 File.WriteAllText(Path.Combine(OutPath, FileName()), headers);
@@ -200,6 +196,10 @@ namespace SnaffPoint
          * writes name of preset used, title of file, author, full path of file, and last date modified
          * to a csv file
          * 
+         * writes over any data previously written to file
+         * 
+         * TODO: make docPath a configurable variable - possibly command line variable?
+         * also could make name of output doc variable
          */
         private static void ConfigureResults(SearchQueryResult results, SearchPreset preset)
         {
@@ -216,7 +216,7 @@ namespace SnaffPoint
                         foreach (ResultItem item in results.PrimaryQueryResult.RelevantResults)
                         {
                             string path = HttpUtility.UrlEncode(item.Path); string site = HttpUtility.UrlEncode(item.SiteName);
-                            string entry = preset.Name + "," + item.Title + "." + item.Extension + "," + item.Author + "," + item.DocId + "," + path + "," + item.Extension + "," + item.Description + "," + item.ViewsRecent + "," + item.LastModifiedTime + "," + site + "," + item.SiteId + "," + item.SiteDescription + "\n";
+                            string entry = preset.Name + "|" + item.Title + "." + item.Extension + "|" + item.Author + "|" + item.DocId + "|" + item.Path + "|" + item.Extension + "|" + item.Description + "|" + item.ViewsRecent + "|" + item.LastModifiedTime + "|" + item.SiteName + "|" + item.SiteId + "|" + item.SiteDescription + "\n";
                             //Console.WriteLine(entry);
 
                             File.AppendAllText(Path.Combine(OutPath, FileName()), entry);
